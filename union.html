@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./leaflet/leaflet.css" />
+    <script src="./leaflet/leaflet.js"></script>
+    <script src="./turf/turf.min.js"></script>
+    <style>
+    body {
+      margin: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+    var map = L.map('map');
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+      attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+    }).addTo(map);
+    map.setView([43.062366, 141.345978], 10)
+    var bbox1 = [141.193542, 42.984056, 141.567078, 43.179645]
+    var bboxPolygon1 = turf.bboxPolygon(bbox1)
+    var bbox2 = [141.293542, 43.084056, 141.667078, 43.279645]
+    var bboxPolygon2 = turf.bboxPolygon(bbox2)
+    var union = turf.union(bboxPolygon1, bboxPolygon2)
+    L.geoJson(union, {
+      style: (f) => {
+        return {fill: true}
+      }
+    }).addTo(map)
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./leaflet/leaflet.css" />
+    <script src="./leaflet/leaflet.js"></script>
+    <script src="./turf/turf.min.js"></script>
+    <style>
+    body {
+      margin: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+    var map = L.map('map');
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+      attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+    }).addTo(map);
+    map.setView([43.062366, 141.345978], 10);
+    var bbox = [141.193542, 42.984056, 141.567078, 43.179645]
+    var points = turf.randomPoint(30, {bbox: bbox})
+    for (var i = 0; i < points.features.length; i++) {
+      points.features[i].properties.z = ~~(Math.random() * 9);
+    }
+    var tin = turf.tin(points, 'z')
+    var retColor = (val) => {
+      return ('00' + parseInt(255 / (val + 1)).toString(16)).substr(-2)
+    }
+    L.geoJson(tin, {
+      style: function(geoJsonFeature){
+        var r = retColor(geoJsonFeature.properties.a)
+        var g = retColor(geoJsonFeature.properties.b)
+        var b = retColor(geoJsonFeature.properties.c)
+        return {
+          fill: true,
+          fillColor: `#${r}${g}${b}`,
+          fillOpacity: 0.8,
+        }
+      }
+    }).addTo(map)
+    </script>
+  </body>
+</html>

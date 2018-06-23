@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./leaflet/leaflet.css" />
+    <script src="./leaflet/leaflet.js"></script>
+    <script src="./turf/turf.min.js"></script>
+    <style>
+    body {
+      margin: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+    var map = L.map('map');
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+      attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+    }).addTo(map);
+    map.setView([43.052366, 141.345978], 12);
+    // 42.960474/141.284909
+    var bbox = [141.284909, 42.960474, 141.567078, 43.179645]
+    var grid = turf.hexGrid(bbox, 0.5)
+
+    var point1 = [141.348172, 43.066070]
+    var pointGeoJSON1 = turf.point(point1)
+    // 42.997248/141.308330
+    var point2 = [141.308330, 42.997248]
+    var pointGeoJSON2 = turf.point(point2)
+    var line = [point1, point2]
+    var lineGeoJSON = turf.lineString(line)
+    var marker1 = L.marker([point1[1], point1[0]], {draggable: true}).addTo(map)
+    var marker2 = L.marker([point2[1], point2[0]], {draggable: true}).addTo(map)
+    var gridLayer = L.geoJson(grid).addTo(map)
+    setStyle = (_) => {
+      const fill = turf.booleanCrosses(_, lineGeoJSON)
+      return {fill: fill, fillOpacity: 0.8}
+    }
+    gridLayer.setStyle(setStyle)
+    rerender = () => {
+      line = [[marker1.getLatLng().lng, marker1.getLatLng().lat], [marker2.getLatLng().lng, marker2.getLatLng().lat]]
+      lineGeoJSON = turf.lineString(line)
+      gridLayer.setStyle(setStyle)
+    }
+    marker1.on('dragend', rerender)
+    marker2.on('dragend', rerender)
+    </script>
+  </body>
+</html>
